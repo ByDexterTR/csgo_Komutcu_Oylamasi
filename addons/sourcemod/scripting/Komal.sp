@@ -68,6 +68,7 @@ public Action Command_Komsil(int client, int args)
 	PrintToChat(target, "[SM] \x01Oylamadan atıldın.");
 	Kovuldu[target] = true;
 	Komal[target] = false;
+	SetClientListeningFlags(client, VOICE_MUTED);
 	KomSayisi--;
 	return Plugin_Handled;
 }
@@ -101,6 +102,7 @@ public Action Command_Komaday(int client, int args)
 	}
 	ReplyToCommand(client, "[SM] \x01Komutçu Oylamasına katıldın.");
 	Komal[client] = true;
+	SetClientListeningFlags(client, VOICE_NORMAL);
 	KomSayisi++;
 	return Plugin_Handled;
 }
@@ -119,6 +121,7 @@ public Action Command_Komadaysil(int client, int args)
 	}
 	ReplyToCommand(client, "[SM] \x01Komutçu Oylamasından ayrıldın.");
 	Komal[client] = false;
+	SetClientListeningFlags(client, VOICE_MUTED);
 	KomSayisi--;
 	return Plugin_Handled;
 }
