@@ -169,7 +169,7 @@ public Action MenuKontrolEt(Handle timer, any data)
 		{
 			Sure--;
 			Menu menu = new Menu(Menu_CallBack);
-			menu.SetTitle("★ Komutçu Oylaması <%d/%d> (%d Saniye kaldı başlamasına) ★\n➜ Aday olmak için: !komaday.\n➜ Adaylıktan çıkmak için: !komadaysil\n➜ Adaylıktan kovmak için: !komsil <Hedef>\n➜ Oylamayı iptal etmek için: !komiptal.\n \n➜ Adaylar:", KomSayisi, ConVar_KomSayiSinir.IntValue, Sure);
+			menu.SetTitle("★ Komutçu Oylaması <%d/%d> (%d Saniye kaldı başlamasına) ★\n➜ Aday olmak için: !komaday\n➜ Adaylıktan çıkmak için: !komadaysil\n➜ Adaylıktan kovmak için: !komsil <Hedef>\n➜ Oylamayı iptal etmek için: !komiptal\n \n➜ Adaylar:", KomSayisi, ConVar_KomSayiSinir.IntValue, Sure);
 			if (KomSayisi == 0)
 			{
 				menu.AddItem("X", "Kimse Katılmadı!", ITEMDRAW_DISABLED);
