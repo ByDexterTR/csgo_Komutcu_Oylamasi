@@ -169,17 +169,19 @@ public Action MenuKontrolEt(Handle timer, any data)
 		{
 			Sure--;
 			Menu menu = new Menu(Menu_CallBack);
-			menu.SetTitle("★ Komutçu Oylaması <%d/%d> ★\n➜ %d Saniye Sonra Oylama başlayacaktır.\n \n➜ !komaday Oylama katılabilirsiniz.\n➜ !komadaysil Oylamadan ayrılabilirsiniz.\n➜ !komsil <Hedef> Oylamadan çıkartabilirsiniz.\n➜ !komiptal Oylamayı durdur.\n \n➜ Katılımcılar:", KomSayisi, ConVar_KomSayiSinir.IntValue, Sure);
+			menu.SetTitle("★ Komutçu Oylaması <%d/%d> (%d Saniye kaldı başlamasına) ★\n➜ Aday olmak için: !komaday.\n➜ Adaylıktan çıkmak için: !komadaysil\n➜ Adaylıktan kovmak için: !komsil <Hedef>\n➜ Oylamayı iptal etmek için: !komiptal.\n \n➜ Adaylar:", KomSayisi, ConVar_KomSayiSinir.IntValue, Sure);
 			if (KomSayisi == 0)
 			{
 				menu.AddItem("X", "Kimse Katılmadı!", ITEMDRAW_DISABLED);
 			}
 			else
 			{
-				char ClientName[128];
+				char ClientName[192];
 				for (int i = 1; i <= MaxClients; i++)if (IsValidClient(i) && Komal[i])
 				{
 					GetClientName(i, ClientName, sizeof(ClientName));
+					FixText(ClientName, 192);
+					Format(ClientName, sizeof(ClientName), "%s - (#%d)", ClientName, GetClientUserId(i));
 					menu.AddItem("X", ClientName, ITEMDRAW_DISABLED);
 				}
 			}
@@ -317,4 +319,25 @@ bool IsValidClient(int client, bool nobots = true)
 		return false;
 	}
 	return IsClientInGame(client);
-} 
+}
+
+bool FixText(char[] Fix, int size)
+{
+	if (size <= 0)
+	{
+		return false;
+	}
+	ReplaceString(Fix, size, "/", "", false);
+	ReplaceString(Fix, size, "`", "", false);
+	ReplaceString(Fix, size, "*", "", false);
+	ReplaceString(Fix, size, "[", "", false);
+	ReplaceString(Fix, size, "]", "", false);
+	ReplaceString(Fix, size, "(", "", false);
+	ReplaceString(Fix, size, ")", "", false);
+	ReplaceString(Fix, size, "|", "", false);
+	ReplaceString(Fix, size, "_", "", false);
+	ReplaceString(Fix, size, "\"", "'", false);
+	ReplaceString(Fix, size, "\\", "", false);
+	ReplaceString(Fix, size, "~", "", false);
+	return true;
+}
