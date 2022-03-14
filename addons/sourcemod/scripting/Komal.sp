@@ -69,7 +69,7 @@ public Action Command_Komsil(int client, int args)
 	PrintToChat(target, "[SM] \x01Oylamadan atıldın.");
 	Kovuldu[target] = true;
 	Komal[target] = false;
-	BaseComm_SetClientMute(client, true);
+	BaseComm_SetClientMute(target, true);
 	KomSayisi--;
 	return Plugin_Handled;
 }
@@ -138,6 +138,11 @@ public Action Command_Komal(int client, int args)
 		ReplyToCommand(client, "[SM] \x01Komutçu Oylaması zaten başlatılmış.");
 		return Plugin_Handled;
 	}
+	for (int i = 1; i <= MaxClients; i++)if (IsValidClient(i))
+	{
+		Kovuldu[i] = false;
+		Komal[i] = false;
+	}
 	Oylama = true;
 	KomSayisi = 0;
 	Sure = ConVar_KomAlimSure.IntValue;
@@ -149,9 +154,11 @@ public Action Command_Komoylaiptal(int client, int args)
 {
 	for (int i = 1; i <= MaxClients; i++)if (IsValidClient(i))
 	{
+		if (Komal[i])
+			BaseComm_SetClientMute(i, true);
+		
 		Kovuldu[i] = false;
 		Komal[i] = false;
-		BaseComm_SetClientMute(client, true);
 	}
 	Oylama = false;
 	Sure = -1;
@@ -246,8 +253,9 @@ public Action MenuKontrolEt(Handle timer, any data)
 				for (int i = 1; i <= MaxClients; i++)if (IsValidClient(i) && Komal[i])
 				{
 					userid = GetClientUserId(i);
-					FormatEx(ClientUserId, sizeof(ClientUserId), "➜ %d", userid);
+					FormatEx(ClientUserId, sizeof(ClientUserId), "%d", userid);
 					GetClientName(i, ClientName, sizeof(ClientName));
+					Format(ClientName, sizeof(ClientName), "➜ %s", ClientName);
 					menu2.AddItem(ClientUserId, ClientName);
 				}
 				menu2.ExitBackButton = false;
