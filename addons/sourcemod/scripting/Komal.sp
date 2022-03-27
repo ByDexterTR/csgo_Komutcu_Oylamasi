@@ -175,28 +175,34 @@ public Action MenuKontrolEt(Handle timer, any data)
 		if (Sure > 0)
 		{
 			Sure--;
-			Menu menu = new Menu(Menu_CallBack);
-			menu.SetTitle("★ Komutçu Oylaması <%d/%d> (%d Saniye kaldı başlamasına) ★\n➜ Aday olmak için: !komaday\n➜ Adaylıktan çıkmak için: !komadaysil\n➜ Adaylıktan kovmak için: !komsil <Hedef>\n➜ Oylamayı iptal etmek için: !komiptal\n \n➜ Adaylar:", KomSayisi, ConVar_KomSayiSinir.IntValue, Sure);
+			Panel menu = new Panel();
+			char format[192];
+			Format(format, 192, "★ Komutçu Oylaması <%d/%d> (%d Saniye kaldı başlamasına) ★", KomSayisi, ConVar_KomSayiSinir.IntValue, Sure);
+			menu.SetTitle(format);
+			menu.DrawText("➜ Aday olmak için: !komaday");
+			menu.DrawText("➜ Adaylıktan çıkmak için: !komadaysil");
+			menu.DrawText("➜ Adaylıktan kovmak için: !komsil <Hedef>");
+			menu.DrawText("➜ Oylamayı iptal etmek için: !komiptal");
+			menu.DrawText(" ");
+			menu.DrawText("➜ Adaylar:");
 			if (KomSayisi == 0)
 			{
-				menu.AddItem("X", "Kimse Katılmadı!", ITEMDRAW_DISABLED);
+				menu.DrawItem("Kimse Katılmadı!", ITEMDRAW_DISABLED);
 			}
 			else
 			{
-				char ClientName[192];
 				for (int i = 1; i <= MaxClients; i++)if (IsValidClient(i) && Komal[i])
 				{
-					GetClientName(i, ClientName, sizeof(ClientName));
-					FixText(ClientName, 192);
-					Format(ClientName, sizeof(ClientName), "%s - (#%d)", ClientName, GetClientUserId(i));
-					menu.AddItem("X", ClientName, ITEMDRAW_DISABLED);
+					GetClientName(i, format, 192);
+					FixText(format, 192);
+					Format(format, 192, "%s - (#%d)", format, GetClientUserId(i));
+					menu.DrawItem(format, ITEMDRAW_DISABLED);
 				}
 			}
-			menu.ExitBackButton = false;
-			menu.ExitButton = false;
 			for (int i = 1; i <= MaxClients; i++)if (IsValidClient(i))
 			{
-				menu.Display(i, 1);
+				menu.Send(i, Panel_CallBack, 0);
+				delete menu;
 			}
 		}
 		else
@@ -217,7 +223,14 @@ public Action MenuKontrolEt(Handle timer, any data)
 				Oylama = false;
 				KomSayisi = 0;
 				if (warden_exist())
-					ServerCommand("sm_rw");
+				{
+					for (int i = 1; i <= MaxClients; i++)if (IsValidClient(i) && warden_iswarden(i))
+					{
+						FakeClientCommand(i, "sm_uw");
+						ChangeClientTeam(i, CS_TEAM_T);
+						CS_RespawnPlayer(i);
+					}
+				}
 				for (int i = 1; i <= MaxClients; i++)if (IsValidClient(i) && Komal[i])
 				{
 					if (IsPlayerAlive(i))
@@ -236,8 +249,10 @@ public Action MenuKontrolEt(Handle timer, any data)
 					Komal[i] = false;
 					ChangeClientTeam(i, CS_TEAM_CT);
 					CS_RespawnPlayer(i);
+					SetEntProp(i, Prop_Data, "m_takedamage", 0, 1);
 					FakeClientCommand(i, "sm_w");
 					PrintToChatAll("[SM] \x01Komutçu Oylamasını \x10%N \x01Kazandı.", i);
+					PrintToChatAll("[SM] %N: God verildi", i);
 				}
 			}
 			else
@@ -272,10 +287,8 @@ public Action MenuKontrolEt(Handle timer, any data)
 	return Plugin_Continue;
 }
 
-public int Menu_CallBack(Menu menu, MenuAction action, int client, int position)
+public int Panel_CallBack(Menu panel, MenuAction action, int client, int position)
 {
-	if (action == MenuAction_End)
-		delete menu;
 }
 
 public int VoteMenu_CallBack(Menu menu2, MenuAction action, int param1, int param2)
@@ -297,7 +310,14 @@ public int VoteMenu_CallBack(Menu menu2, MenuAction action, int param1, int para
 		menu2.GetItem(param1, Buneamk, sizeof(Buneamk));
 		int client = GetClientOfUserId(StringToInt(Buneamk));
 		if (warden_exist())
-			ServerCommand("sm_rw");
+		{
+			for (int i = 1; i <= MaxClients; i++)if (IsValidClient(i) && warden_iswarden(i))
+			{
+				FakeClientCommand(i, "sm_uw");
+				ChangeClientTeam(i, CS_TEAM_T);
+				CS_RespawnPlayer(i);
+			}
+		}
 		if (IsPlayerAlive(client))
 		{
 			int wepIdx;
@@ -313,10 +333,12 @@ public int VoteMenu_CallBack(Menu menu2, MenuAction action, int param1, int para
 		}
 		ChangeClientTeam(client, CS_TEAM_CT);
 		CS_RespawnPlayer(client);
+		SetEntProp(client, Prop_Data, "m_takedamage", 0, 1);
 		FakeClientCommand(client, "sm_w");
 		char Names[128];
 		GetClientName(client, Names, sizeof(Names));
 		PrintToChatAll("[SM] \x01Komutçu Oylamasını \x10%s \x01Kazandı.", Names);
+		PrintToChatAll("[SM] %s: God verildi", Names);
 	}
 }
 
