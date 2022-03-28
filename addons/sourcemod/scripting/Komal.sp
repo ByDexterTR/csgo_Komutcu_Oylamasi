@@ -175,19 +175,19 @@ public Action MenuKontrolEt(Handle timer, any data)
 		if (Sure > 0)
 		{
 			Sure--;
-			Panel menu = new Panel();
+			Panel panel = new Panel();
 			char format[192];
 			Format(format, 192, "★ Komutçu Oylaması <%d/%d> (%d Saniye kaldı başlamasına) ★", KomSayisi, ConVar_KomSayiSinir.IntValue, Sure);
-			menu.SetTitle(format);
-			menu.DrawText("➜ Aday olmak için: !komaday");
-			menu.DrawText("➜ Adaylıktan çıkmak için: !komadaysil");
-			menu.DrawText("➜ Adaylıktan kovmak için: !komsil <Hedef>");
-			menu.DrawText("➜ Oylamayı iptal etmek için: !komiptal");
-			menu.DrawText(" ");
-			menu.DrawText("➜ Adaylar:");
+			panel.SetTitle(format);
+			panel.DrawText("➜ Aday olmak için: !komaday");
+			panel.DrawText("➜ Adaylıktan çıkmak için: !komadaysil");
+			panel.DrawText("➜ Adaylıktan kovmak için: !komsil <Hedef>");
+			panel.DrawText("➜ Oylamayı iptal etmek için: !komiptal");
+			panel.DrawText(" ");
+			panel.DrawText("➜ Adaylar:");
 			if (KomSayisi == 0)
 			{
-				menu.DrawItem("Kimse Katılmadı!", ITEMDRAW_DISABLED);
+				panel.DrawItem("Kimse Katılmadı!", ITEMDRAW_DISABLED);
 			}
 			else
 			{
@@ -196,13 +196,13 @@ public Action MenuKontrolEt(Handle timer, any data)
 					GetClientName(i, format, 192);
 					FixText(format, 192);
 					Format(format, 192, "%s - (#%d)", format, GetClientUserId(i));
-					menu.DrawItem(format, ITEMDRAW_DISABLED);
+					panel.DrawItem(format, ITEMDRAW_DISABLED);
 				}
 			}
 			for (int i = 1; i <= MaxClients; i++)if (IsValidClient(i))
 			{
-				menu.Send(i, Panel_CallBack, 0);
-				delete menu;
+				panel.Send(i, Panel_CallBack, 1);
+				delete panel;
 			}
 		}
 		else
