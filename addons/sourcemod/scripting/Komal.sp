@@ -101,6 +101,69 @@ public Action Command_Komaday(int client, int args)
 		ReplyToCommand(client, "[SM] \x01Komutçu Oylamasından Kovulduğun/Çıktığın için tekrar katılamazsın.");
 		return Plugin_Handled;
 	}
+	
+	char sPath[256];
+	BuildPath(Path_SM, sPath, 256, "data/advanced-basecomm.ini");
+	char format[128];
+	GetClientAuthId(client, AuthId_Steam2, format, 128);
+	
+	KeyValues kv = new KeyValues("ByDexter");
+	kv.ImportFromFile(sPath);
+	
+	if (kv.JumpToKey(format, false))
+	{
+		GetClientName(client, format, 128);
+		kv.SetString("lastname", format);
+		
+		FormatTime(format, 128, "%T - %F", GetTime());
+		kv.SetString("lastjoin", format);
+		
+		int time = kv.GetNum("pmute", 0);
+		if (time >= 1)
+		{
+			ReplyToCommand(client, "[SM] \x01Komutçu Oylamasına cezalılar katılamaz. \x10!ceza");
+			return Plugin_Handled;
+		}
+		time = kv.GetNum("mutetime", 0);
+		if (time >= 1)
+		{
+			ReplyToCommand(client, "[SM] \x01Komutçu Oylamasına cezalılar katılamaz. \x10!ceza");
+			return Plugin_Handled;
+		}
+		kv.Rewind();
+		kv.ExportToFile(sPath);
+	}
+	delete kv;
+	
+	BuildPath(Path_SM, sPath, 256, "data/advanced-ctbantime.ini");
+	GetClientAuthId(client, AuthId_Steam2, format, 128);
+	kv = new KeyValues("ByDexter");
+	kv.ImportFromFile(sPath);
+	if (kv.JumpToKey(format, false))
+	{
+		GetClientName(client, format, 128);
+		kv.SetString("lastname", format);
+		
+		FormatTime(format, 128, "%T - %F", GetTime());
+		kv.SetString("lastjoin", format);
+		
+		int time = kv.GetNum("ctban", 0);
+		if (time >= 1)
+		{
+			ReplyToCommand(client, "[SM] \x01Komutçu Oylamasına cezalılar katılamaz. \x10!ceza");
+			return Plugin_Handled;
+		}
+		time = kv.GetNum("ctbantime", 0);
+		if (time >= 1)
+		{
+			ReplyToCommand(client, "[SM] \x01Komutçu Oylamasına cezalılar katılamaz. \x10!ceza");
+			return Plugin_Handled;
+		}
+		kv.Rewind();
+		kv.ExportToFile(sPath);
+	}
+	delete kv;
+	
 	ReplyToCommand(client, "[SM] \x01Komutçu Oylamasına katıldın.");
 	Komal[client] = true;
 	BaseComm_SetClientMute(client, false);
@@ -177,14 +240,10 @@ public Action MenuKontrolEt(Handle timer, any data)
 			Sure--;
 			Panel panel = new Panel();
 			char format[192];
-			Format(format, 192, "★ Komutçu Oylaması <%d/%d> (%d Saniye kaldı başlamasına) ★", KomSayisi, ConVar_KomSayiSinir.IntValue, Sure);
+			Format(format, 192, "★ Komutçu Oylaması <%d/%d> (%d Saniye kaldı başlamasına) ★\n ", KomSayisi, ConVar_KomSayiSinir.IntValue, Sure);
 			panel.SetTitle(format);
-			panel.DrawText("➜ Aday olmak için: !komaday");
-			panel.DrawText("➜ Adaylıktan çıkmak için: !komadaysil");
-			panel.DrawText("➜ Adaylıktan kovmak için: !komsil <Hedef>");
-			panel.DrawText("➜ Oylamayı iptal etmek için: !komiptal");
-			panel.DrawText(" ");
-			panel.DrawText("➜ Adaylar:");
+			Format(format, 192, "➜ Aday olmak için: !komaday\n➜ Adaylıktan çıkmak için: !komadaysil\n➜ Adaylıktan kovmak için: !komsil <Hedef>\n➜ Oylamayı iptal etmek için: !komiptal\n \n➜ Adaylar:");
+			panel.DrawText(format);
 			if (KomSayisi == 0)
 			{
 				panel.DrawItem("Kimse Katılmadı!", ITEMDRAW_DISABLED);
@@ -202,8 +261,8 @@ public Action MenuKontrolEt(Handle timer, any data)
 			for (int i = 1; i <= MaxClients; i++)if (IsValidClient(i))
 			{
 				panel.Send(i, Panel_CallBack, 1);
-				delete panel;
 			}
+			delete panel;
 		}
 		else
 		{
