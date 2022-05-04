@@ -18,7 +18,7 @@ public Plugin myinfo =
 	name = "Komutçu Oylaması", 
 	author = "ByDexter", 
 	description = "", 
-	version = "1.1", 
+	version = "1.2", 
 	url = "https://steamcommunity.com/id/ByDexterTR - ByDexter#5494"
 };
 
@@ -305,36 +305,43 @@ public int VoteMenu_CallBack(Menu menu2, MenuAction action, int param1, int para
 		char Buneamk[128];
 		menu2.GetItem(param1, Buneamk, sizeof(Buneamk));
 		int client = GetClientOfUserId(StringToInt(Buneamk));
-		if (warden_exist())
+		if (IsValidClient(client))
 		{
-			for (int i = 1; i <= MaxClients; i++)if (IsValidClient(i) && warden_iswarden(i))
+			if (warden_exist())
 			{
-				FakeClientCommand(i, "sm_uw");
-				ChangeClientTeam(i, CS_TEAM_T);
-				CS_RespawnPlayer(i);
-			}
-		}
-		if (IsPlayerAlive(client))
-		{
-			int wepIdx;
-			for (int i; i < 12; i++)
-			{
-				while ((wepIdx = GetPlayerWeaponSlot(client, i)) != -1)
+				for (int i = 1; i <= MaxClients; i++)if (IsValidClient(i) && warden_iswarden(i))
 				{
-					RemovePlayerItem(client, wepIdx);
-					RemoveEntity(wepIdx);
+					FakeClientCommand(i, "sm_uw");
+					ChangeClientTeam(i, CS_TEAM_T);
+					CS_RespawnPlayer(i);
 				}
 			}
-			ForcePlayerSuicide(client);
+			if (IsPlayerAlive(client))
+			{
+				int wepIdx;
+				for (int i; i < 12; i++)
+				{
+					while ((wepIdx = GetPlayerWeaponSlot(client, i)) != -1)
+					{
+						RemovePlayerItem(client, wepIdx);
+						RemoveEntity(wepIdx);
+					}
+				}
+				ForcePlayerSuicide(client);
+			}
+			ChangeClientTeam(client, CS_TEAM_CT);
+			CS_RespawnPlayer(client);
+			SetEntProp(client, Prop_Data, "m_takedamage", 0, 1);
+			FakeClientCommand(client, "sm_w");
+			char Names[128];
+			GetClientName(client, Names, sizeof(Names));
+			PrintToChatAll("[SM] \x01Komutçu Oylamasını \x10%s \x01Kazandı.", Names);
+			PrintToChatAll("[SM] %s: God verildi", Names);
 		}
-		ChangeClientTeam(client, CS_TEAM_CT);
-		CS_RespawnPlayer(client);
-		SetEntProp(client, Prop_Data, "m_takedamage", 0, 1);
-		FakeClientCommand(client, "sm_w");
-		char Names[128];
-		GetClientName(client, Names, sizeof(Names));
-		PrintToChatAll("[SM] \x01Komutçu Oylamasını \x10%s \x01Kazandı.", Names);
-		PrintToChatAll("[SM] %s: God verildi", Names);
+		else
+		{
+			PrintToChatAll("[SM] Kazanan komutçuyu bulamadım.");
+		}
 	}
 }
 
@@ -366,4 +373,4 @@ bool FixText(char[] Fix, int size)
 	ReplaceString(Fix, size, "\\", "", false);
 	ReplaceString(Fix, size, "~", "", false);
 	return true;
-}
+} 
